@@ -1,8 +1,10 @@
 const express = require('express');
 const Posts = require('../data/db')
+const bodyParser = require('body-parser');
 
 const router = express.Router();
-
+router.use(bodyParser.json());
+// router.use(bodyParser.urlencoded());
 router.post('/', (req, res) => {
     console.log(req.body);
     Posts.insert(req.body)
