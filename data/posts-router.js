@@ -20,20 +20,26 @@ router.post('/', (req, res) => {
 });
 
 router.post('/:id/comments', (req, res) => {
-    Posts.findById(req.params.id)
-    .then(posts => {
-        if(posts) {
-            res.status(201).json(posts);
-        } else {
-            res.status(404).json({ message: "The post with the specified ID does not exist."})
-        }
-    })
-    .catch(err => {
-        console.log(err);
-        res.status(500).json({
-            message: "There was an error while saving the comment to the database"
+    const comment = {...req.body, post_id: req.params.id}
+    if (req.body.hasOwnProperty("text")){
+        Posts.insertComment(comment)
+        .then(id => {
+            console.log(comment);
+            if(id) {
+                res.status(201).json(comment);
+            } else {
+                res.status(404).json({ message: "The post with the specified ID does not exist."})
+            }
         })
-    })
+        .catch(err => {
+            console.log(err);
+            res.status(500).json({
+                message: "There was an error while saving the comment to the database"
+            })
+        })
+    } else {
+        res.status(400).json({errorMessage: "Please provide text for the comment"});
+    }
 });
 
 router.get('/', (req, res) => {
@@ -89,7 +95,7 @@ router.delete("/:id", (req, res) => {
     Posts.remove(req.params.id)
     .then(count => {
         if(count > 0){
-            res.status(200).json({ message: "the posts are here"})
+            res.status(200).json({ message: "post was deleted"})
         } else{
             res.status(404)({ message:"The post with the specified ID does not exist."})
         }
@@ -97,7 +103,7 @@ router.delete("/:id", (req, res) => {
     .catch(err => {
         console.log(err);
         res.status(500).json({
-            message: "he post could not be removed"
+            message: "the post could not be removed"
         })
     })
 });
@@ -106,8 +112,8 @@ router.put("/:id", (req, res) => {
     const changes = req.body;
     Posts.update(req.params.id, changes)
     .then(posts => {
-        if(posts) {
-            res.status(200).json(posts);
+        if(changes.hasOwnProperty("title") && (changes.hasOwnProperty("contents"))) {
+            res.status(200).json(changes);
         } else{
             res.status(400).json({
                 message:  "Please provide title and contents for the post."
