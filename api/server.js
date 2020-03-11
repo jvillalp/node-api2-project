@@ -8,7 +8,7 @@ server.use(express());
 
 server.get("/", (req, res) => {
     res.send(`
-        <h2>Hello</h2>
+        <h2>Posts</h2>
     `)
 });
 
